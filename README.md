@@ -1,36 +1,55 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
 ## Description
+Task Manager is a syetem that allows users to create task and manage tasks
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+As Users:
+1. user can register via  POST /api/v1/auth/register endpoint
+    Request body = {
+      firstName: string
+      lastName: string
+      email: string
+      password: string
+    }
+2. user can login via POST /api/v1/auth/login endpoint
+    Request body = {
+      email: string
+      password: string
+    }
+3. user can create task via POST /api/v1/tasks endpoint, task has status; pending, ongoing, completed and cancelled
+    Request body = {
+      title: string
+      description: string
+      dueDate: string (yyyy-mm-dd i.e 2024-07-06)
+    }
+4. user can get tasks created by him/her GET /api/v1/tasks endpoint. this endpoint is paginated. 
+    QueryParam = {
+      fromDate: string (yyyy-mm-dd i.e 2024-07-06),
+      toDate: string (yyyy-mm-dd i.e 2024-07-06),
+      title: string
+      description: string
+      page: page number starting from 1;
+      size: entries size
+    }
+5. user can update task PATCH /api/v1/tasks/:id. NOTE: user can only update a task whose due date has not elapsed. if due date has elapsed, then he can only updated the dueDate
+    RequestBody = {
+      title: string
+      description: string
+      dueDate: string (yyyy-mm-dd i.e 2024-07-06)
+      status: pending | ongoing | completed
+    }
+6. user can delete task DELETE /api/v1/tasks/:id
 
 ## Installation
+
+create an .env file at the root folder and copy the details in env.example file.
 
 ```bash
 $ npm install
 ```
+
+
+
 
 ## Running the app
 
@@ -58,16 +77,8 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
-## Support
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+## PROJECT SUBMITTED BY Adeniji Adefisayo, fisayoadeniji@yahoo.com
 
-## Stay in touch
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
 
-## License
-
-Nest is [MIT licensed](LICENSE).
