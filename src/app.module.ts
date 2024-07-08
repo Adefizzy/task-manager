@@ -8,7 +8,6 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { ExceptionsFilter } from './utils/exception-filter.lib';
 
-
 @Module({})
 export class AppModule {
   static forRoot({ config }: { config: Config }): DynamicModule {
