@@ -28,6 +28,9 @@ export class TasksService {
       dueDate: new Date(createTaskDto.dueDate),
       user,
     });
+    this.logger.log(
+      `Creating a new task; title: ${createTaskDto.title}, dueDate: ${createTaskDto.dueDate}`,
+    );
     return await this.taskRepository.save(task);
   }
 
@@ -64,16 +67,19 @@ export class TasksService {
   }
 
   async update(id: number, updateTaskDto: UpdateTaskDto, loggedInUser: User) {
-    // Retrieve the task with user relation
     const taskToUpdate = await this.findOne(id);
 
     // Check if the task exists
     if (!taskToUpdate) {
+      this.logger.log(`Task with ID ${id} not found`);
       throw new NotFoundException(`Task with ID ${id} not found`);
     }
 
     // Check if the logged-in user is the owner of the task
     if (taskToUpdate.user.id !== loggedInUser.id) {
+      this.logger.log(
+        'You are not authorized to update this task, userId' + loggedInUser.id,
+      );
       throw new UnauthorizedException(
         'You are not authorized to update this task',
       );
@@ -90,6 +96,8 @@ export class TasksService {
     }
 
     const updatedTask = await this.taskRepository.save(taskToUpdate);
+
+    this.logger.log(`task was updated, taskId ${updatedTask.id}`);
     return { content: updatedTask, status: 'success' };
   }
 
@@ -97,11 +105,15 @@ export class TasksService {
     const taskToRemove = await this.findOne(id);
 
     if (!taskToRemove) {
+      this.logger.log(`Task with ID ${id} not found`);
       throw new NotFoundException(`Task with ID ${id} not found`);
     }
 
     // Check if the logged-in user is the owner of the task
     if (taskToRemove.user.id !== loggedInUser.id) {
+      this.logger.log(
+        'You are not authorized to update this task, userId' + loggedInUser.id,
+      );
       throw new UnauthorizedException(
         'You are not authorized to delete this task',
       );
