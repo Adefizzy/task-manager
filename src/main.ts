@@ -9,6 +9,7 @@ import {
   DocumentBuilder,
   SwaggerDocumentOptions,
 } from '@nestjs/swagger';
+import { ValidationPipeExt } from './utils/validation-pipe';
 
 async function bootstrap() {
   const appConfig: Config = config;
@@ -27,6 +28,9 @@ async function bootstrap() {
       app.use(helmet());
       app.use(cookieParser());
       app.setGlobalPrefix('api/v1');
+      app.useGlobalPipes(
+        new ValidationPipeExt({ whitelist: true, transform: true }),
+      );
 
       const config = new DocumentBuilder()
         .setTitle('enif-user-taskmanager api docs')
