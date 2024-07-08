@@ -7,6 +7,7 @@ import { LoggerModule } from 'nestjs-pino';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { ExceptionsFilter } from './utils/exception-filter.lib';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({})
 export class AppModule {
@@ -14,6 +15,13 @@ export class AppModule {
     return {
       module: AppModule,
       imports: [
+        TypeOrmModule.forRootAsync({
+          imports: [ConfigModule],
+          useFactory: (configService: ConfigService) => ({
+            ...configService.get('database'),
+          }),
+          inject: [ConfigService],
+        }),
         LoggerModule.forRoot(),
         ConfigModule.forRoot({
           isGlobal: true,
