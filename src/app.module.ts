@@ -10,6 +10,7 @@ import { ExceptionsFilter } from './utils/exception-filter.lib';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './app/user/user.module';
 import { AuthModule } from './app/auth/auth.module';
+import { TasksModule } from './app/tasks/tasks.module';
 
 @Module({})
 export class AppModule {
@@ -33,6 +34,7 @@ export class AppModule {
         }),
         UserModule,
         AuthModule,
+        TasksModule,
         ThrottlerModule.forRoot([
           {
             ttl: 60000,
