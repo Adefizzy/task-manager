@@ -1,3 +1,4 @@
+import { Task } from '@app/app/tasks/entities/task.entity';
 import { hashUtils } from '@app/utils/libs';
 import { Exclude, instanceToPlain } from 'class-transformer';
 import {
@@ -6,6 +7,7 @@ import {
   PrimaryGeneratedColumn,
   BeforeInsert,
   BeforeUpdate,
+  OneToMany,
 } from 'typeorm';
 
 @Entity('users')
@@ -28,6 +30,9 @@ export class User {
   @Column()
   @Exclude({ toPlainOnly: true })
   password: string;
+
+  @OneToMany(() => Task, (task) => task.user)
+  tasks: Task[];
 
   @BeforeInsert()
   @BeforeUpdate()
