@@ -4,6 +4,7 @@ import { config, Config } from './config';
 import { Logger } from 'nestjs-pino';
 import helmet from 'helmet';
 import * as cookieParser from 'cookie-parser';
+import * as passport from 'passport';
 import {
   SwaggerModule,
   DocumentBuilder,
@@ -25,6 +26,7 @@ async function bootstrap() {
         credentials: true,
       });
 
+      app.use(passport.initialize());
       app.use(helmet());
       app.use(cookieParser());
       app.setGlobalPrefix('api/v1');

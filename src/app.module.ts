@@ -8,6 +8,8 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { ExceptionsFilter } from './utils/exception-filter.lib';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { UserModule } from './app/user/user.module';
+import { AuthModule } from './app/auth/auth.module';
 
 @Module({})
 export class AppModule {
@@ -29,7 +31,8 @@ export class AppModule {
           ignoreEnvFile: false,
           ignoreEnvVars: true,
         }),
-
+        UserModule,
+        AuthModule,
         ThrottlerModule.forRoot([
           {
             ttl: 60000,
