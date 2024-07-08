@@ -1,6 +1,5 @@
 import {
   ArgumentsHost,
-  BadRequestException,
   Catch,
   ExceptionFilter,
   HttpException,
@@ -8,6 +7,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Response, Request } from 'express';
+import { QueryFailedError } from 'typeorm';
 
 interface HttpExceptionResponse {
   statusCode: number;
@@ -22,6 +22,8 @@ interface CustomHttpExceptionResponse extends HttpExceptionResponse {
 
 @Catch()
 export class ExceptionsFilter implements ExceptionFilter {
+  private readonly logger = new Logger(ExceptionsFilter.name);
+
   catch(exception: any, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
@@ -34,9 +36,18 @@ export class ExceptionsFilter implements ExceptionFilter {
       status = exception.getStatus();
       const errorResponse = exception.getResponse();
       errorMessage =
-        (errorResponse as BadRequestException).message ||
+        (errorResponse as any).message ||
         (errorResponse as HttpExceptionResponse).error ||
         exception.message;
+    } else if (exception instanceof QueryFailedError) {
+      // Handle specific TypeORM errors
+      status = HttpStatus.BAD_REQUEST;
+      // Assuming PostgreSQL error code for unique violation is '23505'
+      if ((exception as any).code === '23505') {
+        errorMessage = 'Duplicate value violates unique constraint';
+      } else {
+        errorMessage = 'Database query error';
+      }
     } else {
       status = HttpStatus.INTERNAL_SERVER_ERROR;
       errorMessage = 'Critical internal server error occurred!';
@@ -48,37 +59,36 @@ export class ExceptionsFilter implements ExceptionFilter {
     response.status(status).json(errorResponse);
   }
 
-  private getErrorResponse = (
+  private getErrorResponse(
     status: HttpStatus,
     errorMessage: string | string[],
     request: Request,
-  ): any =>
-    Object.assign(
-      {
-        statusCode: status,
-        path: request.url,
-        method: request.method,
-        timeStamp: new Date(),
-      },
-      Array.isArray(errorMessage)
-        ? { errors: errorMessage }
-        : { error: errorMessage },
-    );
+  ): CustomHttpExceptionResponse {
+    return {
+      statusCode: status,
+      path: request.url,
+      method: request.method,
+      timeStamp: new Date(),
+      error: Array.isArray(errorMessage)
+        ? errorMessage.join(', ')
+        : errorMessage,
+    };
+  }
 
-  private getErrorLog = (
+  private getErrorLog(
     errorResponse: CustomHttpExceptionResponse,
     request: Request,
-    exception: Error,
-  ): string => {
-    const { statusCode } = errorResponse;
-    const { method, url } = request;
-    const errorLog = `Response Code: ${statusCode} - Method: ${method} - URL: ${url}\n
-        ${JSON.stringify(errorResponse)}\n
-        ${exception.stack}\n\n`;
+    exception: any,
+  ): string {
+    const { statusCode, error, path, method, timeStamp } = errorResponse;
+    const errorLog = `Response Code: ${statusCode} - Method: ${method} - URL: ${path}\n
+      Timestamp: ${timeStamp}\n
+      Error: ${error}\n
+      Stack: ${exception.stack}\n\n`;
     return errorLog;
-  };
+  }
 
-  private writeLog = (errorLog: string): void => {
-    Logger.error(errorLog);
-  };
+  private writeLog(errorLog: string): void {
+    this.logger.error(errorLog);
+  }
 }
